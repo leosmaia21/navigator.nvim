@@ -58,6 +58,7 @@ This will display Navigator's bookmarks in the lualine status bar.
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests to improve the plugin.
+Maybe add plenary to read the file with the bookmarks asynchronously, as I said nfs can be slow!
 
 ## License
 
