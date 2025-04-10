@@ -11,7 +11,7 @@ local function setup(opts)
 end
 
 -- User commands
-vim.api.nvim_create_user rockercommand("NavOpen", navigator.launch_navigator, {})
+vim.api.nvim_create_user_command("NavOpen", navigator.launch_navigator, {})
 vim.api.nvim_create_user_command("NavAdd", navigator.addfile, {})
 vim.api.nvim_create_user_command("NavClear", navigator.cleandata, {})
 vim.api.nvim_create_user_command("NavPrint", navigator.printdata, {})
