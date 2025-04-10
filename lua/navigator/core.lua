@@ -27,12 +27,11 @@ end
 M.data = {}
 M._loaded = false
 M._buf, M._win = nil, nil
-M.jumpkeys = {"q", "w", "e", "r"}
+M.lualine_keys = {"q", "w", "e", "r"} -- Default lualine labels
 local cwd = vim.fn.getcwd()
 local cache = vim.fn.stdpath("cache")
 local datafile = cache .. "/navigator.files"
 
--- Load existing data
 if file_exists(datafile) then
     M.data = tableload(datafile) or {}
 end
@@ -42,7 +41,6 @@ local function is_only_whitespace(str)
     return str:match("^%s*$") ~= nil
 end
 
--- Autogroup for buffer events
 M.group = vim.api.nvim_create_augroup("Navigator", { clear = true })
 
 function M.launch_navigator()
@@ -109,16 +107,11 @@ end
 
 function M.addfile()
     local current_file = vim.fn.expand("%:.")
-    if is_only_whitespace(current_file) or current_file == "" then
-        return nil
-    end
+    if is_only_whitespace(current_file) or current_file == "" then return end
     for _, v in pairs(M.data[cwd]) do
-        if v == current_file then
-            return 
-        end
+        if v == current_file then return end
     end
-    local size = #(M.data[cwd]) + 1
-    M.data[cwd][size] = current_file
+    table.insert(M.data[cwd], current_file)
     tablesave(M.data, datafile)
 end
 
@@ -128,16 +121,17 @@ end
 
 function M.cleandata()
     M.data = {}
-    tablesave({}, datafile)
+    M.data[cwd] = {}
+    tablesave(M.data, datafile)
 end
 
 M.showjumpkeys = true
 function M.lualine()
     local string = ""
     local idx = 1
-    for _, k in pairs(M.data[cwd]) do
-        if idx <= #M.jumpkeys and M.showjumpkeys then
-            string = string .. " " .. M.jumpkeys[idx]:upper() .. " " .. k .. " |"
+    for _, k in pairs(M.data[cwd] or {}) do
+        if idx <= #M.lualine_keys and M.showjumpkeys then
+            string = string .. " " .. M.lualine_keys[idx]:upper() .. " " .. k .. " |"
             idx = idx + 1
         else
             string = string .. " " .. k .. " |"
