@@ -46,8 +46,13 @@ M.group = vim.api.nvim_create_augroup("Navigator", { clear = true })
 function M.launch_navigator()
     local width = vim.o.columns
     local height = vim.o.lines
-    local float_width = 50
-    local float_height = 10
+    local lines = M.data[cwd] or {}
+    local max_len = 20
+    for _, l in ipairs(lines) do
+        max_len = math.max(max_len, vim.fn.strdisplaywidth(l))
+    end
+    local float_width = math.min(max_len + 2, width - 4)
+    local float_height = math.min(math.max(#lines, 1), height - 6)
     local row = math.floor((height - float_height) / 2)
     local col = math.floor((width - float_width) / 2)
 
@@ -55,7 +60,7 @@ function M.launch_navigator()
         M._buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_option(M._buf, "bufhidden", "hide")
     end
-    vim.api.nvim_buf_set_lines(M._buf, 0, -1, false, M.data[cwd] or {})
+    vim.api.nvim_buf_set_lines(M._buf, 0, -1, false, lines)
 
     M._win = vim.api.nvim_open_win(M._buf, true, {
         border = "rounded",
@@ -131,10 +136,10 @@ function M.lualine()
     local idx = 1
     for _, k in pairs(M.data[cwd] or {}) do
         if idx <= #M.lualine_keys and M.showjumpkeys then
-            string = string .. " " .. M.lualine_keys[idx]:upper() .. " " .. k .. " |"
+            string = string .. " " .. M.lualine_keys[idx]:upper() .. " " .. vim.fn.fnamemodify(k, ":t") .. " |"
             idx = idx + 1
         else
-            string = string .. " " .. k .. " |"
+            string = string .. " " .. vim.fn.fnamemodify(k, ":t") .. " |"
         end
     end
     return string
